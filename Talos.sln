@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01-Core", "01-Core", "{29947CCE-6549-4799-A213-DD516E914685}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Talos.Shared", "01-Core\Talos.Shared\Talos.Shared.csproj", "{58E85A98-459B-4776-9715-3E772DB7385B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02-Backend", "02-Backend", "{89C0C8C0-FEE4-49FA-8485-1BBD571D0353}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Talos.Server", "02-Backend\Talos.Server\Talos.Server.csproj", "{F210D731-468B-4DC0-AF49-6B5CAB12FB54}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03-Client", "03-Client", "{85D79904-E583-4DD4-9D6C-B64AE5D792EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Talos.Tool", "03-Client\Talos.Tool\Talos.Tool.csproj", "{0A532B4E-FA19-4981-9BCB-1422C272AF61}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58E85A98-459B-4776-9715-3E772DB7385B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58E85A98-459B-4776-9715-3E772DB7385B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58E85A98-459B-4776-9715-3E772DB7385B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58E85A98-459B-4776-9715-3E772DB7385B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F210D731-468B-4DC0-AF49-6B5CAB12FB54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F210D731-468B-4DC0-AF49-6B5CAB12FB54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F210D731-468B-4DC0-AF49-6B5CAB12FB54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F210D731-468B-4DC0-AF49-6B5CAB12FB54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A532B4E-FA19-4981-9BCB-1422C272AF61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A532B4E-FA19-4981-9BCB-1422C272AF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A532B4E-FA19-4981-9BCB-1422C272AF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A532B4E-FA19-4981-9BCB-1422C272AF61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{58E85A98-459B-4776-9715-3E772DB7385B} = {29947CCE-6549-4799-A213-DD516E914685}
+		{F210D731-468B-4DC0-AF49-6B5CAB12FB54} = {89C0C8C0-FEE4-49FA-8485-1BBD571D0353}
+		{0A532B4E-FA19-4981-9BCB-1422C272AF61} = {85D79904-E583-4DD4-9D6C-B64AE5D792EE}
+	EndGlobalSection
+EndGlobal
