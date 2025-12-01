@@ -3,38 +3,44 @@ using Talos.Shared.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
+// Controllers
+builder.Services.AddControllers();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Database
 var connectionString = builder.Configuration.GetConnectionString("Default");
-
-// Add service for connection string to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect("Default")));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+// AUTOMAPPER
+builder.Services.AddAutoMapper(typeof(Program));
 
-// Add service for RedisCache to the container.  
-//Note : The backend needs Redis to be turned on in order to function PORT:6379
+
+// Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    options.InstanceName = builder.Configuration["Redis:InstanceName"];
+    options.InstanceName = "Talos_";
 });
-
-
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Talos API V1");
+    c.RoutePrefix = string.Empty; 
+});
 
-app.UseHttpsRedirection();
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-
-
