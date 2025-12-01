@@ -1,6 +1,7 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Talos.Tool.Interfaces;
+using Talos.Tool.Models;
 
 namespace Talos.Tool.Commands;
 
@@ -27,6 +28,48 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
 
         [CommandOption("-v|--verbose")]
         public bool Verbose { get; set; }
+        
+        [CommandOption("-y|--yes")]
+        public bool AutoYes { get; set; }
+        
+        [CommandOption("-c|--cwd")]
+        public string? WorkingDirectory { get; set; }
+    }
+
+    public async Task RunTemplateAsync(
+        TemplateJson template,
+        Settings settings,
+        CancellationToken cancellationToken)
+    {
+        var os = _osProvider.GetCurrentOSString().ToLower();
+        var autoYes = settings.AutoYes ? "--yes" : string.Empty;
+        var cwd = settings.WorkingDirectory ?? Directory.GetCurrentDirectory();
+
+        foreach (var dep in template.Dependencies)
+        {
+            if (!dep.Commands.TryGetValue(os, out var commandsForOS))
+            {
+                AnsiConsole.MarkupLine($"[yellow]Skipping {dep.Name}: no commands for {os}[/]");
+                continue;
+            }
+
+            foreach (var rawCmd in commandsForOS)
+            {
+                var cmd = rawCmd
+                    .Replace("{{PROJECT_NAME}}", settings.Template)
+                    .Replace("{{AUTO_YES}}", autoYes)
+                    .Replace("{{CWD}}", cwd);
+
+                var ok = await _commandExecutor.ExecuteCommandAsync(
+                    cmd,
+                    cwd,
+                    settings.Verbose
+                );
+
+                if (!ok)
+                    throw new Exception($"Command failed: {cmd}");
+            }
+        }
     }
 
     public override async Task<int> ExecuteAsync(
@@ -54,7 +97,7 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
                     await Task.Delay(300); // opcional
                     return await _templateService.GetTemplateAsync(settings.Template);
                 });
-
+            
             if (template == null)
             {
                 AnsiConsole.MarkupLineInterpolated(
@@ -62,6 +105,7 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
                 );
                 return 1;
             }
+            
 
             // ─────────────────────────────────────────────
             // PANEL DEL TEMPLATE
@@ -84,7 +128,7 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
                 $"OS Detected: [yellow]{_osProvider.GetCurrentOSString().ToUpper()}[/]"
             );
             
-            _commandExecutor.ExecuteCommandAsync(settings.Template, settings.Template, settings.Verbose);
+            await RunTemplateAsync(template, settings, cancellationToken);
 
             return 0;
         }

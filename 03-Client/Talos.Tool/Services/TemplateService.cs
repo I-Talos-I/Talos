@@ -1,4 +1,8 @@
+using System.Net.Http.Json;
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Talos.Tool.Interfaces;
+using Talos.Tool.Json;
 using Talos.Tool.Models;
 
 namespace Talos.Tool.Services;
@@ -14,33 +18,24 @@ public class TemplateService : ITemplateService
     
     public async Task<TemplateJson?> GetTemplateAsync(string templateSlug)
     {
-        // TODO: Implementar llamada real al backend
-        await Task.Delay(100);
+        var filePath = Path.Combine("/home/sergio/Documentos/talos/03-Client/Talos.Tool/Schemas", $"{templateSlug}.json");
+
+        Console.WriteLine($"[TEMPLATE DEBUG] Path: {filePath}");
+        Console.WriteLine($"[TEMPLATE DEBUG] Exists: {File.Exists(filePath)}");
         
-        return new TemplateJson
-        {
-            Name = "React Starter",
-            Description = "A basic React template with TypeScript",
-            Author = "talos-team",
-            Dependencies = new List<Dependency>
-            {
-                new()
-                {
-                    Name = "node.js",
-                    AvailableVersions = new List<string> { "18.x", "20.x", "22.x" },
-                    Commands = new Dictionary<string, string[]>
-                    {
-                        ["linux"] = new[] { "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -", "sudo apt-get install -y nodejs" },
-                        ["windows"] = new[] { "choco install nodejs --version=20.0.0" }
-                    }
-                }
-            }
-        };
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"No existe el template: {filePath}");
+
+        await using var fileStream = File.OpenRead(filePath);
+
+        return await JsonSerializer.DeserializeAsync(
+            fileStream,
+            TemplateJsonContext.Default.TemplateJson
+        );
     }
 
     public async Task<List<CompatibilityResult>?> GetCompatibleVersionsAsync(string package, string version)
     {
-        // TODO: Implementar llamada real al endpoint de compatibilidades
         await Task.Delay(50);
 
         return new List<CompatibilityResult>
