@@ -29,6 +29,9 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
         [CommandOption("-v|--verbose")]
         public bool Verbose { get; set; }
         
+        [CommandOption("-n|--name")]
+        public string Name { get; set; } = string.Empty;
+        
         [CommandOption("-y|--yes")]
         public bool AutoYes { get; set; }
         
@@ -43,6 +46,7 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
     {
         var os = _osProvider.GetCurrentOSString().ToLower();
         var autoYes = settings.AutoYes ? "--yes" : string.Empty;
+        var name = settings.Name ?? settings.Template;
         var cwd = settings.WorkingDirectory ?? Directory.GetCurrentDirectory();
 
         foreach (var dep in template.Dependencies)
@@ -57,6 +61,7 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
             {
                 var cmd = rawCmd
                     .Replace("{{PROJECT_NAME}}", settings.Template)
+                    .Replace("{{NAME}}", name)
                     .Replace("{{AUTO_YES}}", autoYes)
                     .Replace("{{CWD}}", cwd);
 
@@ -105,6 +110,8 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
                 );
                 return 1;
             }
+
+            Console.WriteLine(template.Name);
             
 
             // ─────────────────────────────────────────────
@@ -112,7 +119,7 @@ public class InstallCommand : AsyncCommand<InstallCommand.Settings>
             // ─────────────────────────────────────────────
             var panel = new Panel(
                     $"[bold]{Markup.Escape(template.Name)}[/]\n" +
-                    $"{Markup.Escape(template.Description)}"
+                    $"{Markup.Escape(template.Description ?? "No description.")}"
                 )
                 .Header("Template Found 🎉")
                 .BorderColor(Color.Green);
