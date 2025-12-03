@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using Talos.Server.Application.RealTime;
 using Talos.Server.Data;
 using Talos.Server.Models;
 
@@ -443,6 +444,25 @@ public class UsersController : ControllerBase
         {
             _logger.LogError(ex, $"Error obteniendo usuarios seguidos por {id}");
             return StatusCode(500, new { message = "Error interno", detail = ex.Message });
+        }
+    }
+    
+    [ApiController]
+    [Route("test/realtime")]
+    public class RealTimeTestController : ControllerBase
+    {
+        private readonly NotificationService _notifier;
+
+        public RealTimeTestController(NotificationService notifier)
+        {
+            _notifier = notifier;
+        }
+
+        [HttpGet("ping")]
+        public async Task<IActionResult> Ping()
+        {
+            await _notifier.NotifyTemplateCreated("testUser", "testTemplate");
+            return Ok("Notificación enviada");
         }
     }
 }

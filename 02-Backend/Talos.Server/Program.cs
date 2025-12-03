@@ -2,7 +2,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Talos.Server.Application.RealTime;
-using Talos.Shared.Data;
 using Microsoft.IdentityModel.Tokens;
 using Talos.Server.Data;
 using Talos.Server.Models;
