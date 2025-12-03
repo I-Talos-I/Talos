@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Talos.Server.Application.RealTime;
 using Talos.Shared.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // AUTOMAPPER
 builder.Services.AddAutoMapper(typeof(Program));
 
+// SIGNALR
+builder.Services.AddSignalR();
 
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -25,6 +28,23 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
     options.InstanceName = "Talos_";
 });
+
+// INYECCION
+builder.Services.AddScoped<NotificationService>();
+
+//debloquear conexion con cors
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(_ => true);
+    });
+});
+
 
 var app = builder.Build();
 
@@ -39,6 +59,13 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; 
 });
 
+app.MapHub<NotificationsHub>("/hubs/notifications");
+
+//prueba de signalr con el html
+app.UseStaticFiles();
+
+//habilitar cors
+app.UseCors();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

@@ -6,6 +6,7 @@ using Talos.Server.Models.Dtos;
 using AutoMapper;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using Talos.Server.Application.RealTime;
 
 [Route("api/users")]
 [ApiController]
@@ -119,4 +120,24 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+    
+    [ApiController]
+    [Route("test/realtime")]
+    public class RealTimeTestController : ControllerBase
+    {
+        private readonly NotificationService _notifier;
+
+        public RealTimeTestController(NotificationService notifier)
+        {
+            _notifier = notifier;
+        }
+
+        [HttpGet("ping")]
+        public async Task<IActionResult> Ping()
+        {
+            await _notifier.NotifyTemplateCreated("testUser", "testTemplate");
+            return Ok("Notificación enviada");
+        }
+    }
+
 }
