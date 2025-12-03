@@ -1,0 +1,23 @@
+﻿version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  talos.server:
+    build:
+      context: .
+      dockerfile: 02-Backend/Talos.Server/Dockerfile
+    image: talos.server
+    depends_on:
+      - redis
+    environment:
+     
+      REDIS_CONNECTION: "redis:6379"
+
+volumes:
+  redis_data:
