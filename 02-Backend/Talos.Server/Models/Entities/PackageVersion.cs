@@ -1,20 +1,23 @@
-namespace Talos.Shared.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class PackageVersion
 {
-    public int id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-    public int package_id { get; set; }
+    [ForeignKey("Package")]
+    public int PackageId { get; set; }
     public Package Package { get; set; }
 
-    public string version { get; set; }
-    public DateTime? release_date { get; set; }
-    public bool is_deprecated { get; set; }
-    public string deprecation_message { get; set; }
-    public string download_url { get; set; }
-    public string release_notes_url { get; set; }
+    public string Version { get; set; }
+    public DateTime ReleaseDate { get; set; }
+    public bool IsDeprecated { get; set; }
+    public string DeprecationMessage { get; set; }
+    public string DownloadUrl { get; set; }
+    public string ReleaseNotesUrl { get; set; }
+    public DateTime CreateAt { get; set; }
 
-    public DateTime create_at { get; set; }
-
-    public ICollection<Compatibility> compatibilities_source { get; set; }
+    public ICollection<Compatibility> SourceCompatibilities { get; set; }
+    public ICollection<Compatibility> TargetCompatibilities { get; set; }
 }

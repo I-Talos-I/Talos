@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Talos.Server.Data;
 
@@ -11,9 +12,11 @@ using Talos.Server.Data;
 namespace Talos.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251202151006_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,78 +252,6 @@ namespace Talos.Server.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("Talos.Server.Models.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("Talos.Server.Models.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedAt");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("Email");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("PasswordHash");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("Role");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("Username");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
-
             modelBuilder.Entity("Template", b =>
                 {
                     b.Property<int>("Id")
@@ -387,6 +318,30 @@ namespace Talos.Server.Migrations
                     b.ToTable("TemplateDependencies");
                 });
 
+            modelBuilder.Entity("User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("Compatibility", b =>
                 {
                     b.HasOne("PackageVersion", "SourcePackageVersion")
@@ -408,23 +363,23 @@ namespace Talos.Server.Migrations
 
             modelBuilder.Entity("Follow", b =>
                 {
-                    b.HasOne("Talos.Server.Models.User", "FollowedUser")
+                    b.HasOne("User", "FollowedUser")
                         .WithMany()
                         .HasForeignKey("FollowedUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Talos.Server.Models.User", "FollowingUser")
+                    b.HasOne("User", "FollowingUser")
                         .WithMany()
                         .HasForeignKey("FollowingUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Talos.Server.Models.User", null)
+                    b.HasOne("User", null)
                         .WithMany("Followers")
                         .HasForeignKey("UserId");
 
-                    b.HasOne("Talos.Server.Models.User", null)
+                    b.HasOne("User", null)
                         .WithMany("Following")
                         .HasForeignKey("UserId1");
 
@@ -457,19 +412,8 @@ namespace Talos.Server.Migrations
 
             modelBuilder.Entity("Post", b =>
                 {
-                    b.HasOne("Talos.Server.Models.User", "User")
+                    b.HasOne("User", "User")
                         .WithMany("Posts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Talos.Server.Models.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("Talos.Server.Models.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -479,7 +423,7 @@ namespace Talos.Server.Migrations
 
             modelBuilder.Entity("Template", b =>
                 {
-                    b.HasOne("Talos.Server.Models.User", "User")
+                    b.HasOne("User", "User")
                         .WithMany("Templates")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -526,7 +470,12 @@ namespace Talos.Server.Migrations
                     b.Navigation("TargetCompatibilities");
                 });
 
-            modelBuilder.Entity("Talos.Server.Models.User", b =>
+            modelBuilder.Entity("Template", b =>
+                {
+                    b.Navigation("TemplateDependencies");
+                });
+
+            modelBuilder.Entity("User", b =>
                 {
                     b.Navigation("Followers");
 
@@ -535,11 +484,6 @@ namespace Talos.Server.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("Templates");
-                });
-
-            modelBuilder.Entity("Template", b =>
-                {
-                    b.Navigation("TemplateDependencies");
                 });
 #pragma warning restore 612, 618
         }

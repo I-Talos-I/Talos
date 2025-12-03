@@ -1,13 +1,20 @@
-﻿namespace Talos.Shared.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Talos.Server.Models;
 
 public class Follow
 {
-    public int id { get; set; }
-    public int following_user_id { get; set; }
+    [Key]
+    public int Id { get; set; }
+
+    [ForeignKey("FollowingUser")]
+    public int FollowingUserId { get; set; }
+
+    [ForeignKey("FollowedUser")]
+    public int FollowedUserId { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
     public User FollowingUser { get; set; }
-
-    public int followed_user_id { get; set; }
     public User FollowedUser { get; set; }
-
-    public DateTime created_at { get; set; } = DateTime.UtcNow;
 }

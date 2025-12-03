@@ -1,9 +1,11 @@
-﻿namespace Talos.Shared.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using Talos.Server.Models;
 
 public class PackageManager
 {
-    public int id { get; set; }
-    public string name { get; set; }
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; }
 
-    public ICollection<Package> packages { get; set; }
+    public ICollection<Package> Packages { get; set; }
 }
