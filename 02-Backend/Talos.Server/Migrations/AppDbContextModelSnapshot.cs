@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Talos.Shared.Data;
+using Talos.Server.Data;
 
 #nullable disable
 
@@ -22,443 +22,483 @@ namespace Talos.Server.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("Talos.Shared.Models.Compatibility", b =>
+            modelBuilder.Entity("Compatibility", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("SourcePackageVersionid")
+                    b.Property<int>("CompatibilityScore")
                         .HasColumnType("int");
 
-                    b.Property<int>("TargetPackageid")
-                        .HasColumnType("int");
+                    b.Property<string>("CompatibilityType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("compatibility_score")
-                        .HasColumnType("int");
+                    b.Property<string>("ConfidenceLevel")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("compatibility_type")
-                        .HasColumnType("int");
+                    b.Property<string>("DetectedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("confidence_level")
-                        .HasColumnType("int");
-
-                    b.Property<int>("detected_by")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("detection_date")
+                    b.Property<DateTime>("DetectionDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("is_active")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("notes")
+                    b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("source_package_version_id")
+                    b.Property<int>("SourcePackageVersionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("target_package_id")
+                    b.Property<int>("TargetPackageVersionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("target_version_constraint")
+                    b.Property<string>("TargetVersionConstraint")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("SourcePackageVersionid");
+                    b.HasIndex("SourcePackageVersionId");
 
-                    b.HasIndex("TargetPackageid");
+                    b.HasIndex("TargetPackageVersionId");
 
-                    b.ToTable("compatibilities");
+                    b.ToTable("Compatibilities");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Follow", b =>
+            modelBuilder.Entity("Follow", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("created_at")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("followed_user_id")
+                    b.Property<int>("FollowedUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("following_user_id")
+                    b.Property<int>("FollowingUserId")
                         .HasColumnType("int");
 
-                    b.HasKey("id");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("followed_user_id");
+                    b.Property<int?>("UserId1")
+                        .HasColumnType("int");
 
-                    b.HasIndex("following_user_id");
+                    b.HasKey("Id");
 
-                    b.ToTable("follows");
+                    b.HasIndex("FollowedUserId");
+
+                    b.HasIndex("FollowingUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("Follows");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Package", b =>
+            modelBuilder.Entity("Package", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("PackageManagerid")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("create_at")
+                    b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("is_active")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime?>("last_scraped_at")
+                    b.Property<DateTime?>("LastScrapedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("name")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("official_documentation_url")
+                    b.Property<string>("OfficialDocumentationUrl")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("package_manager_id")
+                    b.Property<int>("PackageManagerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("repository_url")
+                    b.Property<string>("RepositoryUrl")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("short_name")
+                    b.Property<string>("ShortName")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("update_at")
+                    b.Property<DateTime>("UpdateAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("PackageManagerid");
+                    b.HasIndex("PackageManagerId");
 
-                    b.ToTable("packages");
+                    b.ToTable("Packages");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.PackageManager", b =>
+            modelBuilder.Entity("PackageManager", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("name")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.ToTable("package_managers");
+                    b.ToTable("PackageManagers");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.PackageVersion", b =>
+            modelBuilder.Entity("PackageVersion", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Packageid")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("create_at")
+                    b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("deprecation_message")
+                    b.Property<string>("DeprecationMessage")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("download_url")
+                    b.Property<string>("DownloadUrl")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("is_deprecated")
+                    b.Property<bool>("IsDeprecated")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("package_id")
+                    b.Property<int>("PackageId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("release_date")
+                    b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("release_notes_url")
+                    b.Property<string>("ReleaseNotesUrl")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("version")
+                    b.Property<string>("Version")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("Packageid");
+                    b.HasIndex("PackageId");
 
-                    b.ToTable("package_versions");
+                    b.ToTable("PackageVersions");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Post", b =>
+            modelBuilder.Entity("Post", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Userid")
-                        .HasColumnType("int");
-
-                    b.Property<string>("body")
+                    b.Property<string>("Body")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("created_at")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("status")
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("title")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("user_id")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("Userid");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("posts");
+                    b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Template", b =>
+            modelBuilder.Entity("Talos.Server.Models.Entities.RefreshToken", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Userid")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("create_at")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("is_public")
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsRevoked")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("license_type")
+                    b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("slug")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("template_name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("user_id")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("Userid");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("user_id");
-
-                    b.ToTable("templates");
+                    b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.TemplateDependencies", b =>
+            modelBuilder.Entity("Talos.Server.Models.User", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Email");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("PasswordHash");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("Role");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Username");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Template", b =>
+                {
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Templateid")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("create_at")
+                    b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("package_id")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("template_id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("version_constraint")
+                    b.Property<string>("LicenseType")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("id");
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.HasIndex("Templateid");
+                    b.Property<string>("TemplateName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.HasIndex("package_id");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("template_id");
+                    b.HasKey("Id");
 
-                    b.ToTable("template_dependencies");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Templates");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.User", b =>
+            modelBuilder.Entity("TemplateDependencies", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("create_at")
+                    b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("email")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("private_template_limit")
+                    b.Property<int>("PackageId")
                         .HasColumnType("int");
 
-                    b.Property<string>("tier")
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VersionConstraint")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("user_name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.HasKey("Id");
 
-                    b.HasKey("id");
+                    b.HasIndex("PackageId");
 
-                    b.ToTable("users");
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("TemplateDependencies");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Compatibility", b =>
+            modelBuilder.Entity("Compatibility", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.PackageVersion", "SourcePackageVersion")
-                        .WithMany("compatibilities_source")
-                        .HasForeignKey("SourcePackageVersionid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("PackageVersion", "SourcePackageVersion")
+                        .WithMany("SourceCompatibilities")
+                        .HasForeignKey("SourcePackageVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Talos.Shared.Models.Package", "TargetPackage")
-                        .WithMany("compatibilities_target")
-                        .HasForeignKey("TargetPackageid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("PackageVersion", "TargetPackageVersion")
+                        .WithMany("TargetCompatibilities")
+                        .HasForeignKey("TargetPackageVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("SourcePackageVersion");
 
-                    b.Navigation("TargetPackage");
+                    b.Navigation("TargetPackageVersion");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Follow", b =>
+            modelBuilder.Entity("Follow", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.User", "FollowedUser")
+                    b.HasOne("Talos.Server.Models.User", "FollowedUser")
                         .WithMany()
-                        .HasForeignKey("followed_user_id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("FollowedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Talos.Shared.Models.User", "FollowingUser")
+                    b.HasOne("Talos.Server.Models.User", "FollowingUser")
                         .WithMany()
-                        .HasForeignKey("following_user_id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("FollowingUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Talos.Server.Models.User", null)
+                        .WithMany("Followers")
+                        .HasForeignKey("UserId");
+
+                    b.HasOne("Talos.Server.Models.User", null)
+                        .WithMany("Following")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("FollowedUser");
 
                     b.Navigation("FollowingUser");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Package", b =>
+            modelBuilder.Entity("Package", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.PackageManager", "PackageManager")
-                        .WithMany("packages")
-                        .HasForeignKey("PackageManagerid")
+                    b.HasOne("PackageManager", "PackageManager")
+                        .WithMany("Packages")
+                        .HasForeignKey("PackageManagerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("PackageManager");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.PackageVersion", b =>
+            modelBuilder.Entity("PackageVersion", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.Package", "Package")
-                        .WithMany("versions")
-                        .HasForeignKey("Packageid")
+                    b.HasOne("Package", "Package")
+                        .WithMany("PackageVersions")
+                        .HasForeignKey("PackageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Package");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Post", b =>
+            modelBuilder.Entity("Post", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("Userid")
+                    b.HasOne("Talos.Server.Models.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Template", b =>
+            modelBuilder.Entity("Talos.Server.Models.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.User", null)
-                        .WithMany("templates")
-                        .HasForeignKey("Userid");
-
-                    b.HasOne("Talos.Shared.Models.User", "User")
+                    b.HasOne("Talos.Server.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("user_id")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.TemplateDependencies", b =>
+            modelBuilder.Entity("Template", b =>
                 {
-                    b.HasOne("Talos.Shared.Models.Template", null)
-                        .WithMany("dependencies")
-                        .HasForeignKey("Templateid");
-
-                    b.HasOne("Talos.Shared.Models.Package", "Package")
-                        .WithMany()
-                        .HasForeignKey("package_id")
+                    b.HasOne("Talos.Server.Models.User", "User")
+                        .WithMany("Templates")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Talos.Shared.Models.Template", "Template")
-                        .WithMany()
-                        .HasForeignKey("template_id")
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TemplateDependencies", b =>
+                {
+                    b.HasOne("Package", "Package")
+                        .WithMany("TemplateDependencies")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Template", "Template")
+                        .WithMany("TemplateDependencies")
+                        .HasForeignKey("TemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -467,31 +507,39 @@ namespace Talos.Server.Migrations
                     b.Navigation("Template");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Package", b =>
+            modelBuilder.Entity("Package", b =>
                 {
-                    b.Navigation("compatibilities_target");
+                    b.Navigation("PackageVersions");
 
-                    b.Navigation("versions");
+                    b.Navigation("TemplateDependencies");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.PackageManager", b =>
+            modelBuilder.Entity("PackageManager", b =>
                 {
-                    b.Navigation("packages");
+                    b.Navigation("Packages");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.PackageVersion", b =>
+            modelBuilder.Entity("PackageVersion", b =>
                 {
-                    b.Navigation("compatibilities_source");
+                    b.Navigation("SourceCompatibilities");
+
+                    b.Navigation("TargetCompatibilities");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.Template", b =>
+            modelBuilder.Entity("Talos.Server.Models.User", b =>
                 {
-                    b.Navigation("dependencies");
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("Templates");
                 });
 
-            modelBuilder.Entity("Talos.Shared.Models.User", b =>
+            modelBuilder.Entity("Template", b =>
                 {
-                    b.Navigation("templates");
+                    b.Navigation("TemplateDependencies");
                 });
 #pragma warning restore 612, 618
         }

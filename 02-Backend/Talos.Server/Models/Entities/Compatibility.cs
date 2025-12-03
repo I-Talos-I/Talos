@@ -1,47 +1,26 @@
-namespace Talos.Shared.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Compatibility
 {
-    public int id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-    public int source_package_version_id { get; set; }
+    [ForeignKey("SourcePackageVersion")]
+    public int SourcePackageVersionId { get; set; }
+
+    [ForeignKey("TargetPackageVersion")]
+    public int TargetPackageVersionId { get; set; }
+
+    public string TargetVersionConstraint { get; set; }
+    public string CompatibilityType { get; set; }
+    public int CompatibilityScore { get; set; }
+    public string ConfidenceLevel { get; set; }
+    public string DetectedBy { get; set; }
+    public DateTime DetectionDate { get; set; }
+    public string Notes { get; set; }
+    public bool IsActive { get; set; }
+
     public PackageVersion SourcePackageVersion { get; set; }
-
-    public int target_package_id { get; set; }
-    public Package TargetPackage { get; set; }
-
-    public string target_version_constraint { get; set; }
-
-    public compatibility_type compatibility_type { get; set; }
-    public int compatibility_score { get; set; }
-
-    public confidence_level confidence_level { get; set; }
-    public detected_by detected_by { get; set; }
-
-    public DateTime detection_date { get; set; }
-    public string notes { get; set; }
-    public bool is_active { get; set; }
-}
-
-public enum compatibility_type
-{
-    required,
-    recommended,
-    optional,
-    conflict
-}
-
-public enum confidence_level
-{
-    high,
-    medium,
-    low
-}
-
-public enum detected_by
-{
-    n8n_scraper,
-    manual,
-    user_report,
-    ai_analysis
+    public PackageVersion TargetPackageVersion { get; set; }
 }

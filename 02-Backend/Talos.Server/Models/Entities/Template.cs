@@ -1,17 +1,21 @@
-namespace Talos.Shared.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Talos.Server.Models;
 
 public class Template
 {
-    public int id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-    public int user_id { get; set; }
+    [ForeignKey("User")]
+    public int UserId { get; set; }
+
+    public string TemplateName { get; set; }
+    public string Slug { get; set; }
+    public bool IsPublic { get; set; }
+    public string LicenseType { get; set; }
+    public DateTime CreateAt { get; set; }
+
     public User User { get; set; }
-
-    public string template_name { get; set; }
-    public string slug { get; set; }
-    public bool is_public { get; set; }
-    public string license_type { get; set; }
-    public DateTime create_at { get; set; }
-
-    public ICollection<TemplateDependencies> dependencies { get; set; }
+    public ICollection<TemplateDependencies> TemplateDependencies { get; set; }
 }

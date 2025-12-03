@@ -1,12 +1,18 @@
-﻿namespace Talos.Shared.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Talos.Server.Models;
 
 public class Post
 {
-    public int id { get; set; }
-    public string title { get; set; }
-    public string body { get; set; }
-    public int user_id { get; set; }
+    [Key]
+    public int Id { get; set; }
+
+    public string Title { get; set; }
+    public string Body { get; set; }
+    public string Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    [ForeignKey("User")]
+    public int UserId { get; set; }
     public User User { get; set; }
-    public string status { get; set; }
-    public DateTime created_at { get; set; } = DateTime.UtcNow;
 }
