@@ -1,24 +1,24 @@
-namespace Talos.Shared.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Package
 {
-    public int id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-    public string name { get; set; }
-    public string short_name { get; set; }
+    public string Name { get; set; }
+    public string ShortName { get; set; }
+    public string RepositoryUrl { get; set; }
+    public string OfficialDocumentationUrl { get; set; }
+    public DateTime? LastScrapedAt { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreateAt { get; set; }
+    public DateTime UpdateAt { get; set; }
 
-    public int package_manager_id { get; set; }
+    [ForeignKey("PackageManager")]
+    public int PackageManagerId { get; set; }
     public PackageManager PackageManager { get; set; }
 
-    public string repository_url { get; set; }
-    public string official_documentation_url { get; set; }
-
-    public DateTime? last_scraped_at { get; set; }
-    public bool is_active { get; set; }
-
-    public DateTime create_at { get; set; }
-    public DateTime update_at { get; set; }
-
-    public ICollection<PackageVersion> versions { get; set; }
-    public ICollection<Compatibility> compatibilities_target { get; set; }
+    public ICollection<PackageVersion> PackageVersions { get; set; }
+    public ICollection<TemplateDependencies> TemplateDependencies { get; set; }
 }

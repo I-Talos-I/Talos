@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
-using Talos.Shared.Data;
+using Talos.Server.Data;
+using Talos.Server.Models;
 using Talos.Server.Models.Dtos;
-using Talos.Shared.Models;
 
 namespace Talos.Server.Controllers;
 
@@ -24,63 +24,40 @@ public class TemplateController : ControllerBase
         _mapper = mapper;
     }
 
-    // GET all
+    // GET: api/templates
     [HttpGet]
-    public async Task<IActionResult> GetAllTemplates()
+    public async Task<IActionResult> GetAllTemplates(
+        [FromQuery] bool? isPublic = null,
+        [FromQuery] string? licenseType = null,
+        [FromQuery] int? userId = null)
     {
         try
         {
-            string cacheKey = "templates_all";
-            string cachedData = await _cache.GetStringAsync(cacheKey);
+            string cacheKey = $"templates_all_{isPublic}_{licenseType}_{userId}";
+            var cached = await _cache.GetStringAsync(cacheKey);
 
-            if (cachedData != null)
+            if (cached != null)
             {
-                var cachedResult = JsonSerializer.Deserialize<List<TemplateDto>>(cachedData);
-                return Ok(new { source = "redis-cache", data = cachedResult });
+                var result = JsonSerializer.Deserialize<List<TemplateDto>>(cached);
+                return Ok(new { source = "redis-cache", data = result });
             }
 
-            var templates = await _context.templates.AsNoTracking().ToListAsync();
-            var dtos = _mapper.Map<List<TemplateDto>>(templates);
+            var query = _context.Templates.AsNoTracking().AsQueryable();
 
-            var serialized = JsonSerializer.Serialize(dtos);
-            await _cache.SetStringAsync(cacheKey, serialized, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-            });
+            if (isPublic.HasValue)
+                query = query.Where(t => t.IsPublic == isPublic.Value);
 
-            return Ok(new { source = "database", data = dtos });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Internal server error", detail = ex.Message });
-        }
-    }
+            if (!string.IsNullOrWhiteSpace(licenseType))
+                query = query.Where(t => t.LicenseType == licenseType);
 
-    // GET by ID
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetTemplateById(int id)
-    {
-        try
-        {
-            string cacheKey = $"template_{id}";
-            string cachedData = await _cache.GetStringAsync(cacheKey);
+            if (userId.HasValue)
+                query = query.Where(t => t.UserId == userId);
 
-            if (cachedData != null)
-            {
-                var cachedResult = JsonSerializer.Deserialize<TemplateDto>(cachedData);
-                return Ok(new { source = "redis-cache", data = cachedResult });
-            }
+            var templates = await query.ToListAsync();
+            var dto = _mapper.Map<List<TemplateDto>>(templates);
 
-            var template = await _context.templates.AsNoTracking().FirstOrDefaultAsync(t => t.id == id);
-            if (template == null)
-                return NotFound(new { message = "Template not found" });
-
-            var dto = _mapper.Map<TemplateDto>(template);
-            var serialized = JsonSerializer.Serialize(dto);
-            await _cache.SetStringAsync(cacheKey, serialized, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-            });
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto),
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
 
             return Ok(new { source = "database", data = dto });
         }
@@ -90,28 +67,185 @@ public class TemplateController : ControllerBase
         }
     }
 
-    // POST
+    // GET: api/templates/user/{userId}
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetTemplatesByUser(int userId)
+    {
+        try
+        {
+            string cacheKey = $"templates_user_{userId}";
+            var cached = await _cache.GetStringAsync(cacheKey);
+
+            if (cached != null)
+            {
+                var result = JsonSerializer.Deserialize<List<TemplateDto>>(cached);
+                return Ok(new { source = "redis-cache", data = result });
+            }
+
+            var templates = await _context.Templates
+                .AsNoTracking()
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+
+            var dto = _mapper.Map<List<TemplateDto>>(templates);
+
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto),
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+
+            return Ok(new { source = "database", data = dto });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", detail = ex.Message });
+        }
+    }
+
+    // GET: api/templates/search
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchTemplates([FromQuery] string q)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return BadRequest(new { message = "Search query is required" });
+
+            string cacheKey = $"templates_search_{q.ToLower()}";
+            var cached = await _cache.GetStringAsync(cacheKey);
+
+            if (cached != null)
+            {
+                var result = JsonSerializer.Deserialize<List<TemplateDto>>(cached);
+                return Ok(new { source = "redis-cache", data = result });
+            }
+
+            var templates = await _context.Templates
+                .AsNoTracking()
+                .Where(t =>
+                    t.TemplateName.ToLower().Contains(q.ToLower()) ||
+                    t.Slug.Contains(q.ToLower().Replace(" ", "-")))
+                .ToListAsync();
+
+            var dto = _mapper.Map<List<TemplateDto>>(templates);
+
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto),
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+
+            return Ok(new { source = "database", data = dto });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", detail = ex.Message });
+        }
+    }
+
+    // GET: api/templates/featured
+    [HttpGet("featured")]
+    public async Task<IActionResult> GetFeaturedTemplates()
+    {
+        try
+        {
+            string cacheKey = "templates_featured";
+            var cached = await _cache.GetStringAsync(cacheKey);
+
+            if (cached != null)
+            {
+                var result = JsonSerializer.Deserialize<List<TemplateDto>>(cached);
+                return Ok(new { source = "redis-cache", data = result });
+            }
+
+            var templates = await _context.Templates
+                .AsNoTracking()
+                .Where(t => t.IsPublic)
+                .OrderByDescending(t => t.CreateAt)
+                .Take(10)
+                .ToListAsync();
+
+            var dto = _mapper.Map<List<TemplateDto>>(templates);
+
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto),
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) });
+
+            return Ok(new { source = "database", data = dto });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", detail = ex.Message });
+        }
+    }
+
+    // GET: api/templates/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetTemplateById(int id)
+    {
+        try
+        {
+            string cacheKey = $"template_{id}";
+            var cached = await _cache.GetStringAsync(cacheKey);
+
+            if (cached != null)
+            {
+                var result = JsonSerializer.Deserialize<TemplateDto>(cached);
+                return Ok(new { source = "redis-cache", data = result });
+            }
+
+            var template = await _context.Templates
+                .AsNoTracking()
+                .Include(t => t.TemplateDependencies)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (template == null)
+                return NotFound(new { message = "Template not found" });
+
+            var dto = _mapper.Map<TemplateDto>(template);
+
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto),
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+
+            return Ok(new { source = "database", data = dto });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", detail = ex.Message });
+        }
+    }
+
+
+    // POST: api/templates
     [HttpPost]
+    
     public async Task<IActionResult> CreateTemplate([FromBody] TemplateCreateDto dto)
+
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            int userId = 1; // luego se obtiene del JWT
-            var entity = _mapper.Map<Template>(dto);
-            entity.user_id = userId;
-            entity.slug = dto.Template_Name.ToLower().Replace(" ", "-");
-            entity.create_at = DateTime.UtcNow;
+            var user = await _context.Users.OrderBy(u => u.Id).FirstOrDefaultAsync();
+            if (user == null)
+                return StatusCode(500, new { message = "No users available" });
 
-            await _context.templates.AddAsync(entity);
+            // Validation: template must be unique to the user
+            var exists = await _context.Templates
+                .AnyAsync(t => t.UserId == user.Id && t.TemplateName.ToLower() == dto.Template_Name.ToLower());
+
+            if (exists)
+                return Conflict(new { message = "A template with this name already exists" });
+
+            var entity = _mapper.Map<Template>(dto);
+
+            entity.UserId = user.Id;
+            entity.Slug = dto.Template_Name.ToLower().Replace(" ", "-");
+            entity.CreateAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(entity.LicenseType))
+                entity.LicenseType = "MIT";
+
+            await _context.Templates.AddAsync(entity);
             await _context.SaveChangesAsync();
 
-            await _cache.RemoveAsync("templates_all"); // Limpiar cache de lista
+            await ClearRelatedCaches(user.Id);
 
-            var response = _mapper.Map<TemplateDto>(entity);
-            return CreatedAtAction(nameof(GetTemplateById), new { id = entity.id }, response);
+            return CreatedAtAction(nameof(GetTemplateById), new { id = entity.Id }, _mapper.Map<TemplateDto>(entity));
         }
         catch (Exception ex)
         {
@@ -119,57 +253,52 @@ public class TemplateController : ControllerBase
         }
     }
 
-    // PUT
+
+    // PUT: api/templates/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTemplate(int id, [FromBody] TemplateCreateDto dto)
     {
-        try
-        {
-            var template = await _context.templates.FirstOrDefaultAsync(t => t.id == id);
-            if (template == null)
-                return NotFound(new { message = "Template not found" });
+        var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == id);
+        if (template == null)
+            return NotFound(new { message = "Template not found" });
 
-            _mapper.Map(dto, template); // AutoMapper update the fields 
-            template.slug = dto.Template_Name.ToLower().Replace(" ", "-");
-            template.create_at = DateTime.UtcNow;
+        template.TemplateName = dto.Template_Name;
+        template.Slug = dto.Template_Name.ToLower().Replace(" ", "-");
+        template.IsPublic = dto.Is_Public;
+        template.LicenseType = string.IsNullOrWhiteSpace(dto.License_Type) ? "MIT" : dto.License_Type;
 
-            await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
+        await ClearRelatedCaches(template.UserId, id);
 
-            // Clean caché
-            await _cache.RemoveAsync($"template_{id}");
-            await _cache.RemoveAsync("templates_all");
-
-            var response = _mapper.Map<TemplateDto>(template);
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Internal error", detail = ex.Message });
-        }
+        return Ok(_mapper.Map<TemplateDto>(template));
     }
 
-    // DELETE
+    // DELETE: api/templates/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTemplate(int id)
     {
-        try
+        var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == id);
+        if (template == null)
+            return NotFound(new { message = "Template not found" });
+
+        _context.Templates.Remove(template);
+        await _context.SaveChangesAsync();
+
+        await ClearRelatedCaches(template.UserId, id);
+        return NoContent();
+    }
+
+    private async Task ClearRelatedCaches(int userId, int? templateId = null)
+    {
+        var tasks = new List<Task>
         {
-            var template = await _context.templates.FirstOrDefaultAsync(t => t.id == id);
-            if (template == null)
-                return NotFound(new { message = "Template not found" });
+            _cache.RemoveAsync("templates_featured"),
+            _cache.RemoveAsync($"templates_user_{userId}")
+        };
 
-            _context.templates.Remove(template);
-            await _context.SaveChangesAsync();
+        if (templateId.HasValue)
+            tasks.Add(_cache.RemoveAsync($"template_{templateId.Value}"));
 
-            // Clean caché
-            await _cache.RemoveAsync($"template_{id}");
-            await _cache.RemoveAsync("templates_all");
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Internal error", detail = ex.Message });
-        }
+        await Task.WhenAll(tasks);
     }
 }

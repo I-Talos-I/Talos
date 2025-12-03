@@ -1,51 +1,82 @@
 using Microsoft.EntityFrameworkCore;
-using Talos.Shared.Models;
+using Talos.Server.Models;
+using Talos.Server.Models.Entities;
 
-namespace Talos.Shared.Data;
-
-public class AppDbContext : DbContext
+namespace Talos.Server.Data
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-        }
-    public DbSet<User> users { get; set; }
-    public DbSet<Template> templates { get; set; }
-    public DbSet<Package> packages { get; set; }
-    public DbSet<PackageVersion> package_versions { get; set; }
-    public DbSet<PackageManager> package_managers { get; set; }
-    public DbSet<TemplateDependencies> template_dependencies { get; set; }
-    public DbSet<Compatibility> compatibilities { get; set; }
-    public DbSet<Follow> follows { get; set; }
-    public DbSet<Post> posts { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class AppDbContext : DbContext
     {
-        modelBuilder.Entity<Template>()
-            .HasOne(t => t.User)
-            .WithMany()
-            .HasForeignKey(t => t.user_id);
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
-        modelBuilder.Entity<Follow>()
-            .HasOne(f => f.FollowingUser)
-            .WithMany()
-            .HasForeignKey(f => f.following_user_id);
+        public DbSet<User> Users { get; set; }
+        public DbSet<Template> Templates { get; set; }
+        public DbSet<Package> Packages { get; set; }
+        public DbSet<PackageVersion> PackageVersions { get; set; }
+        public DbSet<PackageManager> PackageManagers { get; set; }
+        public DbSet<TemplateDependencies> TemplateDependencies { get; set; }
+        public DbSet<Compatibility> Compatibilities { get; set; }
+        public DbSet<Follow> Follows { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
-        modelBuilder.Entity<Follow>()
-            .HasOne(f => f.FollowedUser)
-            .WithMany()
-            .HasForeignKey(f => f.followed_user_id);
 
-        modelBuilder.Entity<TemplateDependencies>()
-            .HasOne(td => td.Template)
-            .WithMany()
-            .HasForeignKey(td => td.template_id);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<TemplateDependencies>()
-            .HasOne(td => td.Package)
-            .WithMany()
-            .HasForeignKey(td => td.package_id);
+            // User
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Posts)
+                .WithOne(p => p.User)
+                .HasForeignKey(p => p.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Templates)
+                .WithOne(t => t.User)
+                .HasForeignKey(t => t.UserId);
+
+            // Follows
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.FollowingUser)
+                .WithMany()
+                .HasForeignKey(f => f.FollowingUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.FollowedUser)
+                .WithMany()
+                .HasForeignKey(f => f.FollowedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // TemplateDependency
+            modelBuilder.Entity<TemplateDependencies>()
+                .HasOne(td => td.Template)
+                .WithMany(t => t.TemplateDependencies)
+                .HasForeignKey(td => td.TemplateId);
+
+            modelBuilder.Entity<TemplateDependencies>()
+                .HasOne(td => td.Package)
+                .WithMany(p => p.TemplateDependencies)
+                .HasForeignKey(td => td.PackageId);
+
+            // PackageVersion
+            modelBuilder.Entity<PackageVersion>()
+                .HasOne(pv => pv.Package)
+                .WithMany(p => p.PackageVersions)
+                .HasForeignKey(pv => pv.PackageId);
+
+            // Compatibility
+            modelBuilder.Entity<Compatibility>()
+                .HasOne(c => c.SourcePackageVersion)
+                .WithMany(pv => pv.SourceCompatibilities)
+                .HasForeignKey(c => c.SourcePackageVersionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Compatibility>()
+                .HasOne(c => c.TargetPackageVersion)
+                .WithMany(pv => pv.TargetCompatibilities)
+                .HasForeignKey(c => c.TargetPackageVersionId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
-
-
-  
 }
