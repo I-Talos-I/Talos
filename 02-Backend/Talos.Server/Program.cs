@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Talos.Server.Data;
 using Talos.Server.Models;
+using Talos.Server.Models.Entities;
 using Talos.Server.Services;
 using Talos.Server.Services.Auth;
 
@@ -123,7 +124,7 @@ else
     builder.Services.AddDistributedMemoryCache();
 }
 
-// CORS (si necesitas frontend)
+// CORS (frontend)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -193,11 +194,4 @@ if (app.Environment.IsDevelopment())
 
 app.Run();
 
-// JwtSettings class (debe estar en Models o Services)
-public class JwtSettings
-{
-    public string Key { get; set; } = string.Empty;
-    public string Issuer { get; set; } = string.Empty;
-    public string Audience { get; set; } = string.Empty;
-    public int ExpireMinutes { get; set; } = 60;
-}
+
