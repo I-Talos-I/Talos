@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schemas.aodesu.com/talos/package.json",
+  "name": "neozsh-ubuntu",
+  "author": "farag0n",
+  "description": "Install zsh, oh-my-zsh and neofetch",
+  "dependencies": [
+    {
+      "name": "zsh",
+      "version": ["5.9"],
+      "commands": {
+        "linux": [
+          "sudo apt update",
+          "sudo apt install -y zsh neofetch",
+          "neofetch",
+          "if [ ! -d \"$HOME/.oh-my-zsh\" ]; then RUNZSH=no CHSH=no sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"; fi",
+          "echo ''",
+          "echo '========================================'",
+          "echo 'INSTALLATION COMPLETE!'",
+          "echo '========================================'",
+          "echo ''",
+          "echo 'Adding \"exec zsh\" to your ~/.bashrc...'",
+          "if ! grep -q 'exec zsh' ~/.bashrc; then echo '' >> ~/.bashrc; echo '# Auto-start zsh' >> ~/.bashrc; echo 'exec zsh' >> ~/.bashrc; fi",
+          "echo 'Done! New terminals will automatically start zsh.'",
+          "echo ''",
+          "echo 'To start zsh in this terminal now, run:'",
+          "echo '  exec zsh'",
+          "echo ''",
+          "echo 'Or just open a new terminal.'",
+          "echo '========================================'"
+        ],
+        "windows": [],
+        "macos": []
+      }
+    }
+  ]
+}

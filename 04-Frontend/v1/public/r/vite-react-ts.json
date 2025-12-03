@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schemas.aodesu.com/talos/package.json",
+  "name": "vite-react-ts",
+  "author": "sergiocortes-dll",
+  "dependencies": [
+    {
+      "name": "node.js",
+      "version": ["24"],
+      "commands": {
+        "linux": [
+          "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash",
+          "\\. \"$HOME/.nvm/nvm.sh\"",
+          "nvm install 25",
+          "node -v"
+        ],
+        "windows": [],
+        "macos": []
+      }
+    },
+    {
+      "name": "vite",
+      "version": ["7.2.6"],
+      "commands": {
+        "linux": [
+          "npm create vite@latest {{PROJECT_NAME}} -- --template react-ts {{AUTO_YES}}"
+        ]
+      }
+    }
+  ]
+}
