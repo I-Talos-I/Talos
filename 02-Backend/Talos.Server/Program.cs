@@ -1,6 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Talos.Server.Application.RealTime;
+using Talos.Shared.Data;
 using Microsoft.IdentityModel.Tokens;
 using Talos.Server.Data;
 using Talos.Server.Models;
@@ -62,6 +64,8 @@ else
     Console.WriteLine("ERROR: No database connection string found!");
 }
 
+// SIGNALR
+builder.Services.AddSignalR();
 // JWT Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -135,6 +139,23 @@ builder.Services.AddCors(options =>
     });
 });
 
+// INYECCION
+builder.Services.AddScoped<NotificationService>();
+
+//debloquear conexion con cors
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(_ => true);
+    });
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -152,6 +173,12 @@ if (app.Environment.IsDevelopment())
     Console.WriteLine($"Redis Connection: {redisConnection}");
     Console.WriteLine($"JWT Issuer: {jwtSettings["Issuer"]}");
 }
+
+app.MapHub<NotificationsHub>("/hubs/notifications");
+
+//prueba de signalr con el html
+app.UseStaticFiles();
+
 
 app.UseHttpsRedirection();
 
@@ -193,5 +220,3 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
-
