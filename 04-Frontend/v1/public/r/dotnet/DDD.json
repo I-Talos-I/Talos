@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schemas.aodesu.com/talos/package.json",
+  "name": "dotnet-ddd",
+  "author": "sergiocortes-dll",
+  "description": "Create a .NET DDD project structure",
+  "dependencies": [
+    {
+      "name": ".NET 9 SDK",
+      "versions": ["9"],
+      "commands": {
+        "linux": [
+          "echo 'Creating DDD project structure for: {{NAME}}'",
+          "# Clean up if exists and create structure",
+          "rm -rf {{NAME}} && mkdir -p {{NAME}}",
+          "cd {{NAME}} && dotnet new sln -n {{NAME}}",
+          "# Create all projects using absolute/relative paths",
+          "dotnet new classlib -n {{NAME}}.Domain -o {{NAME}}/src/{{NAME}}.Domain",
+          "dotnet new classlib -n {{NAME}}.Application -o {{NAME}}/src/{{NAME}}.Application",
+          "dotnet new classlib -n {{NAME}}.Infrastructure -o {{NAME}}/src/{{NAME}}.Infrastructure",
+          "dotnet new webapi -n {{NAME}}.WebApi -o {{NAME}}/src/{{NAME}}.WebApi",
+          "dotnet new xunit -n {{NAME}}.Tests -o {{NAME}}/tests/{{NAME}}.Tests",
+          "# Add all projects to solution using the solution file directly",
+          "dotnet sln {{NAME}}/{{NAME}}.sln add {{NAME}}/src/{{NAME}}.Domain/{{NAME}}.Domain.csproj",
+          "dotnet sln {{NAME}}/{{NAME}}.sln add {{NAME}}/src/{{NAME}}.Application",
+          "dotnet sln {{NAME}}/{{NAME}}.sln add {{NAME}}/src/{{NAME}}.Infrastructure",
+          "dotnet sln {{NAME}}/{{NAME}}.sln add {{NAME}}/src/{{NAME}}.WebApi",
+          "dotnet sln {{NAME}}/{{NAME}}.sln add {{NAME}}/tests/{{NAME}}.Tests",
+          "# Add project references using project files directly",
+          "dotnet add {{NAME}}/src/{{NAME}}.Application reference {{NAME}}/src/{{NAME}}.Domain",
+          "dotnet add {{NAME}}/src/{{NAME}}.Infrastructure reference {{NAME}}/src/{{NAME}}.Application",
+          "dotnet add {{NAME}}/src/{{NAME}}.WebApi reference {{NAME}}/src/{{NAME}}.Application",
+          "dotnet add {{NAME}}/src/{{NAME}}.WebApi reference {{NAME}}/src/{{NAME}}.Infrastructure",
+          "echo ''",
+          "echo '=== DDD PROJECT CREATED ==='",
+          "echo 'Project structure:'",
+          "find {{NAME}} -type f -name '*.csproj' -o -name '*.sln' | sort",
+          "echo ''",
+          "echo 'To build and run:'",
+          "echo '  cd {{NAME}}'",
+          "echo '  dotnet build'",
+          "echo '  dotnet run --project src/{{NAME}}.WebApi'",
+          "nautilus ./{{NAME}}"
+        ],
+        "windows": [],
+        "macos": []
+      }
+    }
+  ]
+}
