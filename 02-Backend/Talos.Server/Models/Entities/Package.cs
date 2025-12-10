@@ -14,6 +14,7 @@ public class Package
     public bool IsActive { get; set; }
     public DateTime CreateAt { get; set; }
     public DateTime UpdateAt { get; set; }
+    public string LastesVersion { get; set; }
 
     [ForeignKey("PackageManager")]
     public int PackageManagerId { get; set; }
